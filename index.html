@@ -169,71 +169,90 @@
         .inject-label input { display: none; }
         .inject-label.active { background: var(--ai-color); color: #000; border-color: var(--ai-color); }
 
-        /* --- 📱 手机端急救补丁 (Mobile Emergency Patch) --- */
+        /* --- 📱 v13.2 手机端垂直流重构 (Vertical Flow) --- */
         @media (max-width: 768px) {
-            /* 1. 强制竖向堆叠：手机上不再分三栏，而是从上往下排 */
+            /* 1. 全局解禁：允许无限滚动 */
             body { 
-                height: auto; /* 解除高度锁死，允许无限长滚动 */
-                overflow-y: auto; 
-                padding: 5px;
+                height: auto !important; 
+                overflow-y: auto !important; 
+                display: block !important; /* 解除Flex锁死 */
+                padding: 10px;
             }
-            
+
+            /* 2. 头部：保持原样，但允许压缩 */
             .dashboard-header {
-                grid-template-columns: 1fr 1fr; /* 统计栏变两列 */
-                height: auto;
-                gap: 5px;
-            }
-            .stat-card:last-child {
-                grid-column: span 2; /* 按钮栏占满一行 */
-            }
-
-            .main-container {
                 display: flex;
-                flex-direction: column; /* 核心：左右布局变上下布局 */
-                height: auto;
-                overflow: visible;
+                flex-wrap: wrap;
+                height: auto !important;
+                gap: 5px;
+                margin-bottom: 15px;
+            }
+            .stat-card { flex: 1 1 45%; font-size: 0.8rem; } /* 统计卡片变小 */
+
+            /* 3. 核心容器：改为垂直堆叠，并启用“洗牌”功能 */
+            .main-container {
+                display: flex !important;
+                flex-direction: column !important;
+                height: auto !important;
+                overflow: visible !important;
+                gap: 20px;
             }
 
-            /* 2. 各个板块的高度限制 */
-            .panel-box, .fishpond-panel, .ai-panel {
-                height: auto; /* 高度自适应 */
-                min-height: 400px; /* 给每个板块一个最小高度，防止太扁 */
-                margin-bottom: 20px;
-                border: 1px solid var(--main-color); /* 手机上边框明显点 */
-            }
-
-            /* 3. 字体与按钮暴力放大 (手指不是鼠标) */
-            html { font-size: 14px; } /* 基础字号调整 */
-            .tactic-btn { padding: 15px; font-size: 1rem; } /* 战术按钮加大 */
+            /* --- 4. 乾坤大挪移 (利用 order 属性重排顺序) --- */
             
-            /* 4. 鱼塘表格优化 */
-            .table-wrapper {
-                max-height: 300px; /* 限制表格高度，防止太长 */
-            }
-            th, td { padding: 10px 5px; font-size: 0.9rem; }
-
-            /* 5. 聊天窗口适配 */
+            /* 优先级 A：AI 指挥中心 (核心) */
             .ai-panel {
-                position: fixed; /* (可选) 如果想让聊天框像微信一样固定在底部，但这会很复杂 */
-                /* 目前策略：让它只是一个普通的板块 */
-                height: 600px; /* 给聊天区足够的高度 */
+                order: 1; 
+                height: 600px !important; /* 给足高度，让你聊个爽 */
+                min-height: 600px;
+                overflow: hidden; /* 内部聊天记录滚动 */
+                border: 2px solid var(--ai-color);
+                margin-bottom: 20px;
             }
-            
-            /* 6. 底部录入栏变竖排 */
+
+            /* 优先级 B：鱼塘列表 */
+            .fishpond-panel {
+                order: 2;
+                height: 500px !important;
+                min-height: 500px;
+            }
+
+            /* 优先级 C：战术军火库 (放在后面，需要时再滑下来) */
+            .tactical-sidebar {
+                order: 3;
+                height: auto !important;
+                max-height: 400px;
+            }
+
+            /* 5. 底部录入栏：变成竖排，放在最下面 */
             .global-input-bar {
+                margin-top: 30px;
                 display: flex;
                 flex-direction: column;
-                height: auto;
-                gap: 10px;
-                padding-bottom: 30px; /* 底部留白 */
+                height: auto !important;
+                gap: 15px;
+                padding-bottom: 50px; /* 底部留白，防止被手机Home条挡住 */
             }
-            .global-input-bar input, .global-input-bar select, .global-input-bar button {
-                width: 100%; /* 控件占满宽度 */
-                height: 40px;
+            .global-input-bar input, 
+            .global-input-bar select, 
+            .global-input-bar button {
+                width: 100%;
+                height: 45px; /* 手指好点 */
+                font-size: 1rem;
             }
             
-            /* 隐藏一些不重要的装饰，节省空间 */
+            /* 6. 隐藏不必要的装饰 */
             .date-arrow-hint { display: none; }
+            
+            /* 7. 修复弹窗在手机上的显示 */
+            .modal-content {
+                width: 95% !important;
+                height: 80vh !important;
+                margin-top: 10vh;
+            }
+            .dual-memo-grid {
+                grid-template-columns: 1fr !important; /* 档案卡也变单栏 */
+            }
         }
     </style>
 </head>
